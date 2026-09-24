@@ -23,7 +23,7 @@ public class AprilTagWebcam {
 
     private ArrayList<AprilTagDetection> detectedTags = new ArrayList<>();
     private Telemetry telemetry;
-    public void init(HardwareMap hwMap, Telemetry telemetry){
+    public void init(HardwareMap hwMap, Telemetry telemetry, String name){
         this.telemetry = telemetry;
         processor = new AprilTagProcessor.Builder()
                 .setDrawTagID(true)
@@ -33,7 +33,7 @@ public class AprilTagWebcam {
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class, "apriltagcam"));
+        builder.setCamera(hwMap.get(WebcamName.class, name));
         builder.setCameraResolution(new Size(640, 480));
         builder.addProcessor(processor);
 

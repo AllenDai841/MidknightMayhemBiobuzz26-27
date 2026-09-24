@@ -36,10 +36,10 @@ public class Drive {
                 )
         );
 
-        fl.setPower(flPower / max);
-        fr.setPower(frPower / max);
-        bl.setPower(blPower / max);
-        br.setPower(brPower / max);
+        fl.setPower(flPower/max);
+        fr.setPower(frPower/max);
+        bl.setPower(blPower/max);
+        br.setPower(brPower/max);
     }
 
     public void stop() {
