@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class Drive {
+public class DriveTest {
     private DcMotorEx fl;
     private DcMotorEx fr;
     private DcMotorEx bl;
     private DcMotorEx br;
 
-    public Drive(HardwareMap hardwareMap) {
+    public DriveTest(HardwareMap hardwareMap) {
         fl = hardwareMap.get(DcMotorEx.class, "fl");
         fr = hardwareMap.get(DcMotorEx.class, "fr");
         bl = hardwareMap.get(DcMotorEx.class, "bl");
@@ -17,6 +17,10 @@ public class Drive {
 
         fr.setDirection(DcMotorEx.Direction.REVERSE);
         br.setDirection(DcMotorEx.Direction.REVERSE);
+        fl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        fr.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        bl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
 
     public void drive(double forward, double strafe, double turn) {
