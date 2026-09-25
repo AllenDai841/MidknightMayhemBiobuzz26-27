@@ -52,7 +52,7 @@ public class AprilTagWebcam {
             if(detection instanceof AprilTagSingleDetection){
                 AprilTagSingleDetection singleDet = (AprilTagSingleDetection) detection;
                 if(singleDet.id == id){
-                    telemetry.addLine("Single ID: " + String.valueOf(singleDet.id));
+                    telemetry.addLine("Single ID: " + singleDet.id);
                     return singleDet;
                 }
             }
@@ -64,6 +64,7 @@ public class AprilTagWebcam {
             if(detection instanceof AprilTagClusterDetection){
                 AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
                 telemetry.addLine("Cluster Name: " + clusterDet.metadata.name);
+                telemetry.addLine("Cluster Orientation: " + clusterDet.metadata.fieldOrientation);
                 return clusterDet;
 
             }
