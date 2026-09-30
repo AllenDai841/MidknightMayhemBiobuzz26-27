@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-public class Pathfinding {
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+@Autonomous
+public class Pathfinding{
+
 }
 /*Pseudocode for pathfinding ig
 game starts
