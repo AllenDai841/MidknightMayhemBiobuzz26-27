@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.tests;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.subsystems.Motor;
@@ -11,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 @TeleOp
 public class motorTest extends OpMode {
     Motor motor;
-    public double rpm = 500;
+    public static double rpm = 500;
     @Override
     public void init() {
         motor = new Motor(hardwareMap.get(DcMotorEx.class, "motor"), 28);
