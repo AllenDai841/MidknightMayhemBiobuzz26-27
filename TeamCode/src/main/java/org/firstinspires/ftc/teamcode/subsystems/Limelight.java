@@ -19,8 +19,15 @@ public class Limelight{
         return result;
     }
     public List<LLResultTypes.DetectorResult> getDetected(){
-        detectedList = result.getDetectorResults();
+        if (result == null || !result.isValid()){
+            detectedList = new ArrayList<>();
+        } else {
+            detectedList = result.getDetectorResults();
+        }
         return detectedList;
+    }
+    public void setPipeline(int pipeline){
+        limelight.pipelineSwitch(pipeline);
     }
     public void start(){
         limelight.start();

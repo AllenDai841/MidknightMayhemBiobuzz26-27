@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-public class BallSensor {
+public class TransferSensor {
     public double detectDistanceCm = 5;
     public double clearDistanceCm = 8;
     public double holdSeconds = 0.3;
@@ -15,7 +15,7 @@ public class BallSensor {
     double seenSince;
     double lastTime;
 
-    public BallSensor(DistanceSensor sensor){
+    public TransferSensor(DistanceSensor sensor){
         this.sensor = sensor;
     }
 
