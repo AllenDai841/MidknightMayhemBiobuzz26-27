@@ -14,6 +14,8 @@ import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -36,6 +38,9 @@ public class Pathfinding extends OpMode {
     private State state = State.SHOOT_PRELOAD;
     private State stateBeforeAvoid = State.SEARCH;
     private Odometry odometry;
+    private DcMotorEx shooterMotor;
+    private DcMotorEx intakeMotor;
+    private Servo triggerServo;
 
     private boolean busy = false;
     private int ballsHeld = 0;
@@ -46,9 +51,34 @@ public class Pathfinding extends OpMode {
     private static final double DEFAULT_MAX_SPEED_INCHES_PER_SECOND = 30.0;
     private static final double DEFAULT_TURN_SPEED_DEGREES_PER_SECOND = 180.0;
     private static final double SIMULATION_STEP_SECONDS = 0.05;
+    private static final double OBSTACLE_LOOKAHEAD_INCHES = 18.0;
+    private static final double OBSTACLE_MARGIN_INCHES = 2.0;
+    private static final String SHOOTER_MOTOR_NAME = "shooter";
+    private static final String INTAKE_MOTOR_NAME = "intake";
+    private static final String TRIGGER_SERVO_NAME = "trigger";
+    private static final double SHOOTER_POWER = 1.0;
+    private static final double INTAKE_POWER = 1.0;
+    private static final double TRIGGER_REST_POSITION = 0.0;
+    private static final double TRIGGER_FIRE_POSITION = 0.45;
+
+    private final SimField field = SimField.bioBuzz();
+    private final boolean[] collectedPollen = new boolean[field.pollen.size()];
+    private int selectedPollenIndex = -1;
 
     private Command goTo(Pose from, Pose to) {
-        return follow(follower, line(from, to).linear(from, to));
+        SimPoint waypoint = field.routeAroundHive(toSimPoint(from), toSimPoint(to), DEFAULT_ROBOT_SIZE_INCHES);
+        if (waypoint == null) {
+            return follow(follower, line(from, to).linear(from, to));
+        }
+
+        Pose aroundHive = poseFactory.of(
+                waypoint.x,
+                waypoint.y,
+                headingDegrees(waypoint.x, waypoint.y, to.x(), to.y()));
+        return sequential(
+                follow(follower, line(from, aroundHive).linear(from, aroundHive)),
+                follow(follower, line(aroundHive, to).linear(aroundHive, to))
+        );
     }
 
     public static void main(String[] args) {
@@ -87,16 +117,49 @@ public class Pathfinding extends OpMode {
 
     private Command shoot() {
         return sequential(
-                instant(() -> { }),
+                instant(() -> {
+                    if (shooterMotor != null) {
+                        shooterMotor.setPower(SHOOTER_POWER);
+                    }
+                }),
                 waitMs(800),
-                instant(() -> { }),
+                instant(() -> {
+                    if (triggerServo != null) {
+                        triggerServo.setPosition(TRIGGER_FIRE_POSITION);
+                    } else if (intakeMotor != null) {
+                        intakeMotor.setPower(INTAKE_POWER);
+                    }
+                }),
                 waitMs(1000),
-                instant(() -> { })
+                instant(() -> {
+                    if (triggerServo != null) {
+                        triggerServo.setPosition(TRIGGER_REST_POSITION);
+                    }
+                    if (intakeMotor != null) {
+                        intakeMotor.setPower(0.0);
+                    }
+                    if (shooterMotor != null) {
+                        shooterMotor.setPower(0.0);
+                    }
+                })
         );
     }
 
-    private Command intakeOn()  { return instant(() -> { }); }
-    private Command intakeOff() { return instant(() -> { }); }
+    private Command intakeOn() {
+        return instant(() -> {
+            if (intakeMotor != null) {
+                intakeMotor.setPower(INTAKE_POWER);
+            }
+        });
+    }
+
+    private Command intakeOff() {
+        return instant(() -> {
+            if (intakeMotor != null) {
+                intakeMotor.setPower(0.0);
+            }
+        });
+    }
 
     private Command collectAt(Pose from, Pose ball) {
         return sequential(
@@ -108,24 +171,110 @@ public class Pathfinding extends OpMode {
     }
 
     private Pose nearestBall() {
-        return null;
+        Pose here = follower == null ? startPose : follower.pose();
+        int nearestIndex = -1;
+        double nearestDistance = Double.POSITIVE_INFINITY;
+
+        for (int i = 0; i < field.pollen.size(); i++) {
+            if (collectedPollen[i]) {
+                continue;
+            }
+
+            SimPoint pollen = field.pollen.get(i);
+            double distance = distance(here.x(), here.y(), pollen.x, pollen.y);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestIndex = i;
+            }
+        }
+
+        if (nearestIndex < 0) {
+            selectedPollenIndex = -1;
+            return null;
+        }
+
+        selectedPollenIndex = nearestIndex;
+        SimPoint pollen = field.pollen.get(nearestIndex);
+        return poseFactory.of(
+                pollen.x,
+                pollen.y,
+                headingDegrees(here.x(), here.y(), pollen.x, pollen.y));
     }
 
     private boolean obstacleDetected() {
-        return false;
+        if (follower == null) {
+            return false;
+        }
+
+        Pose here = follower.pose();
+        if (isKnownObstacle(here)) {
+            return true;
+        }
+
+        double heading = here.heading();
+        Pose lookahead = poseFactory.of(
+                here.x() + OBSTACLE_LOOKAHEAD_INCHES * Math.cos(heading),
+                here.y() + OBSTACLE_LOOKAHEAD_INCHES * Math.sin(heading),
+                Math.toDegrees(heading));
+        return isKnownObstacle(lookahead);
     }
 
     private boolean isKnownObstacle(Pose here) {
+        SimPoint robotCenter = toSimPoint(here);
+        double robotRadius = robotRadius(DEFAULT_ROBOT_SIZE_INCHES);
+        for (SimObstacle obstacle : field.obstacles) {
+            if (obstacle.clearance(robotCenter) <= robotRadius + OBSTACLE_MARGIN_INCHES) {
+                return true;
+            }
+        }
         return false;
+    }
+
+    private SimPoint toSimPoint(Pose pose) {
+        return new SimPoint(pose.x(), pose.y());
+    }
+
+    private static double robotRadius(double robotSize) {
+        return Math.sqrt(robotSize * robotSize + robotSize * robotSize) / 2.0;
+    }
+
+    private static double headingDegrees(double fromX, double fromY, double toX, double toY) {
+        return Math.toDegrees(Math.atan2(toY - fromY, toX - fromX));
     }
 
     @Override
     public void init() {
         odometry = new Odometry(hardwareMap);
+        initGamepieceHardware();
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
         follower.update();
+    }
+
+    private void initGamepieceHardware() {
+        shooterMotor = optionalHardware(DcMotorEx.class, SHOOTER_MOTOR_NAME);
+        intakeMotor = optionalHardware(DcMotorEx.class, INTAKE_MOTOR_NAME);
+        triggerServo = optionalHardware(Servo.class, TRIGGER_SERVO_NAME);
+
+        if (shooterMotor != null) {
+            shooterMotor.setPower(0.0);
+        }
+        if (intakeMotor != null) {
+            intakeMotor.setPower(0.0);
+        }
+        if (triggerServo != null) {
+            triggerServo.setPosition(TRIGGER_REST_POSITION);
+        }
+    }
+
+    private <T> T optionalHardware(Class<? extends T> hardwareClass, String name) {
+        try {
+            return hardwareMap.get(hardwareClass, name);
+        } catch (IllegalArgumentException e) {
+            telemetry.addData("Missing optional hardware", name);
+            return null;
+        }
     }
 
     @Override
@@ -178,6 +327,10 @@ public class Pathfinding extends OpMode {
                 break;
 
             case COLLECT:
+                if (selectedPollenIndex >= 0) {
+                    collectedPollen[selectedPollenIndex] = true;
+                    selectedPollenIndex = -1;
+                }
                 ballsHeld++;
                 state = (ballsHeld >= BALLS_TO_COLLECT) ? State.RETURN : State.SEARCH;
                 break;
