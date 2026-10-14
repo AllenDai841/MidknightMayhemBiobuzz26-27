@@ -40,11 +40,7 @@ public class Auto extends OpMode{
     }
     @Override
     public void loop(){
-        //shoot le balls
-        Drive.drive(10,2,70);
-        //detects balls stores them in the ballx and bally variables
-        Odometry.update();
-        Drive.drive();
+        //shoot le ball
 
     }
 

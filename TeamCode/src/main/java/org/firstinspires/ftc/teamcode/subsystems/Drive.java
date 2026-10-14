@@ -21,7 +21,7 @@ public class Drive {
         bl.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
-    static public void drive(double forward, double strafe, double turn) {
+    public void drive(double forward, double strafe, double turn) {
         double flPower = forward + strafe + turn;
         double frPower = forward - strafe - turn;
         double blPower = forward - strafe + turn;
