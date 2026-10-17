@@ -55,13 +55,14 @@ public class Pathfinding extends OpMode {
         schedule(autoRoutine());
 
     }
+    //
     @Override
     public void loop() {
         follower.update();
         Scheduler.execute();
 
 
-        TelemetryMessage telemetryData;
+        TelemetryMessage telemetryData = null;
         telemetryData.addData("X", follower.pose().x());
         telemetryData.addData("Y", follower.pose().y());
         telemetryData.addData("Heading", Math.toDegrees(follower.pose().heading()));
