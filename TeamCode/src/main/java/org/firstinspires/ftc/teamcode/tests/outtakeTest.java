@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 @TeleOp
 public class outtakeTest extends OpMode{
     Motor motor;
-    public static double rpm = 3800; // between 3700 on tachometer
+    public static double rpm = 3900;
     @Override
     public void init() {
         motor = new Motor(hardwareMap.get(DcMotorEx.class, "motorTest"), 28);
