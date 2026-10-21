@@ -14,6 +14,7 @@ public class HiveAimer {
 
     AprilTagWebcam camera;
     Odometry odometry;
+    ShotCalculator shotCalculator = new ShotCalculator();
     boolean tagSeen;
     double correction;
     double error;
@@ -32,14 +33,14 @@ public class HiveAimer {
     }
 
     void update(double x, double y, double heading, boolean tagSeen, double tagBearing){
+        shotCalculator.update(x, y, heading);
         this.tagSeen = tagSeen;
-        // Where odometry thinks the hive is, in degrees left of where the robot is facing.
-        double odometryError = wrap(Math.toDegrees(Math.atan2(HIVE_Y - y, HIVE_X - x) - heading));
+        double calculatedError = shotCalculator.getAimError();
         // When the tag is visible, remember how far off odometry was, and keep using that once the tag is lost.
         if (tagSeen){
-            correction += TAG_TRUST * wrap(tagBearing - odometryError - correction);
+            correction += TAG_TRUST * wrap(tagBearing - calculatedError - correction);
         }
-        error = wrap(odometryError + correction + AIM_OFFSET);
+        error = wrap(calculatedError + correction + AIM_OFFSET);
         // Drive.drive() turns right for positive turn, and a positive error means the hive is to the left.
         turn = Math.max(-MAX_TURN, Math.min(MAX_TURN, -TURN_GAIN * error));
     }
@@ -53,6 +54,21 @@ public class HiveAimer {
     }
     public double getError(){
         return error;
+    }
+    public double getTargetHeading(){
+        return shotCalculator.getTargetHeading();
+    }
+    public double getShotRpm(){
+        return shotCalculator.getRpm();
+    }
+    public double getShotDistance(){
+        return shotCalculator.getDistance();
+    }
+    public boolean canShoot(){
+        return shotCalculator.canShoot();
+    }
+    public boolean isShotReachable(){
+        return shotCalculator.isReachable();
     }
     public boolean isAimed(){
         return Math.abs(error) < AIM_TOLERANCE;

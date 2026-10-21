@@ -28,9 +28,9 @@ import java.util.List;
 public class Pathfinding extends OpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
-    private final Pose startPose = poseFactory.of(56, 8, 90);
-    private final Pose scorePose = poseFactory.of(48, 36, 90);
-    private final Pose parkPose  = poseFactory.of(72, 36, 90);
+    private final Pose startPose = poseFactory.of(-16, -64, 90);
+    private final Pose scorePose = poseFactory.of(-24, -36, 90);
+    private final Pose parkPose  = poseFactory.of(0, -36, 90);
 
     private enum State { SHOOT_PRELOAD, SEARCH, COLLECT, RETURN, SHOOT, AVOID, PARK, DONE }
 
@@ -46,6 +46,7 @@ public class Pathfinding extends OpMode {
     private AprilTagWebcam arducam;
     private HiveAimer hiveAimer;
     private TransferSensor transferSensor;
+    private final ShotCalculator shotCalculator = new ShotCalculator();
 
     private boolean busy = false;
     private boolean driving = false;
@@ -55,6 +56,7 @@ public class Pathfinding extends OpMode {
     private static final int BALLS_TO_COLLECT = 3;
     private static final double PARK_TIME_SECONDS = 25.0;
     private static final double FIELD_SIZE_INCHES = 144.0;
+    private static final double FIELD_HALF_SIZE_INCHES = FIELD_SIZE_INCHES / 2.0;
     private static final double DEFAULT_ROBOT_SIZE_INCHES = 18.0;
     private static final double OBSTACLE_LOOKAHEAD_INCHES = 18.0;
     private static final double OBSTACLE_MARGIN_INCHES = 2.0;
@@ -67,6 +69,7 @@ public class Pathfinding extends OpMode {
     private static final String APRILTAG_CAMERA_NAME = "arducam";
     private static final String TRANSFER_SENSOR_NAME = "transfer";
     private static final double SHOOTER_POWER = 1.0;
+    private static final double SHOOTER_TICKS_PER_REV = 28.0;
     private static final double INTAKE_POWER = 1.0;
     private static final double TRIGGER_REST_POSITION = 0.0;
     private static final double TRIGGER_FIRE_POSITION = 0.45;
@@ -105,13 +108,20 @@ public class Pathfinding extends OpMode {
         return sequential(
                 instant(() -> {
                     driving = false;
+                    Pose here = follower == null ? startPose : follower.pose();
+                    shotCalculator.update(here.x(), here.y(), here.heading());
                     if (hiveAimer != null) {
                         hiveAimer.update();
                     }
                 }),
                 instant(() -> {
                     if (shooterMotor != null) {
-                        shooterMotor.setPower(SHOOTER_POWER);
+                        double rpm = shotCalculator.getRpm();
+                        if (shotCalculator.canShoot() && rpm > 0.0) {
+                            shooterMotor.setVelocity(SHOOTER_TICKS_PER_REV * rpm / 60.0);
+                        } else {
+                            shooterMotor.setPower(SHOOTER_POWER);
+                        }
                     }
                 }),
                 waitMs(800),
@@ -219,12 +229,12 @@ public class Pathfinding extends OpMode {
         double targetHeading = here.heading() - Math.toRadians(ballChaser.getBallAngle());
         double x = clamp(
                 here.x() + VISION_BALL_TARGET_DISTANCE_INCHES * Math.cos(targetHeading),
-                DEFAULT_ROBOT_SIZE_INCHES / 2.0,
-                FIELD_SIZE_INCHES - DEFAULT_ROBOT_SIZE_INCHES / 2.0);
+                -FIELD_HALF_SIZE_INCHES + DEFAULT_ROBOT_SIZE_INCHES / 2.0,
+                FIELD_HALF_SIZE_INCHES - DEFAULT_ROBOT_SIZE_INCHES / 2.0);
         double y = clamp(
                 here.y() + VISION_BALL_TARGET_DISTANCE_INCHES * Math.sin(targetHeading),
-                DEFAULT_ROBOT_SIZE_INCHES / 2.0,
-                FIELD_SIZE_INCHES - DEFAULT_ROBOT_SIZE_INCHES / 2.0);
+                -FIELD_HALF_SIZE_INCHES + DEFAULT_ROBOT_SIZE_INCHES / 2.0,
+                FIELD_HALF_SIZE_INCHES - DEFAULT_ROBOT_SIZE_INCHES / 2.0);
         return poseFactory.of(x, y, Math.toDegrees(targetHeading));
     }
 
@@ -285,8 +295,12 @@ public class Pathfinding extends OpMode {
         }
 
         double edge = DEFAULT_ROBOT_SIZE_INCHES / 2.0;
-        double x = clamp(here.x() + AVOID_STEP_INCHES * dx, edge, FIELD_SIZE_INCHES - edge);
-        double y = clamp(here.y() + AVOID_STEP_INCHES * dy, edge, FIELD_SIZE_INCHES - edge);
+        double x = clamp(here.x() + AVOID_STEP_INCHES * dx,
+                -FIELD_HALF_SIZE_INCHES + edge,
+                FIELD_HALF_SIZE_INCHES - edge);
+        double y = clamp(here.y() + AVOID_STEP_INCHES * dy,
+                -FIELD_HALF_SIZE_INCHES + edge,
+                FIELD_HALF_SIZE_INCHES - edge);
         return poseFactory.of(x, y, Math.toDegrees(here.heading()));
     }
 
@@ -303,10 +317,11 @@ public class Pathfinding extends OpMode {
     }
 
     private Pose aimedScorePose() {
+        shotCalculator.update(scorePose.x(), scorePose.y(), scorePose.heading());
         return poseFactory.of(
                 scorePose.x(),
                 scorePose.y(),
-                headingDegrees(scorePose.x(), scorePose.y(), HiveAimer.HIVE_X, HiveAimer.HIVE_Y));
+                shotCalculator.getTargetHeading());
     }
 
     @Override
@@ -378,6 +393,8 @@ public class Pathfinding extends OpMode {
         }
 
         follower.update();
+        Pose here = follower.pose();
+        shotCalculator.update(here.x(), here.y(), here.heading());
         Scheduler.execute();
 
         if (busy
@@ -403,6 +420,8 @@ public class Pathfinding extends OpMode {
         telemetry.addData("Y", follower.pose().y());
         telemetry.addData("Heading (deg)", Math.toDegrees(follower.pose().heading()));
         telemetry.addData("Follower Mode", follower.mode());
+        telemetry.addData("Shot RPM", "%.0f", shotCalculator.getRpm());
+        telemetry.addData("Can Shoot", shotCalculator.canShoot());
         telemetry.update();
     }
 
@@ -507,18 +526,18 @@ public class Pathfinding extends OpMode {
         private static FieldModel bioBuzz() {
             FieldModel field = new FieldModel();
 
-            field.obstacles.add(FieldObstacle.rectangle(72.0, 72.0, 49.46, 38.95));
-            field.obstacles.add(FieldObstacle.circle(24.0, 0.0, 6.0));
-            field.obstacles.add(FieldObstacle.circle(120.0, 0.0, 6.0));
-            field.obstacles.add(FieldObstacle.circle(24.0, 144.0, 6.0));
-            field.obstacles.add(FieldObstacle.circle(120.0, 144.0, 6.0));
+            field.obstacles.add(FieldObstacle.rectangle(0.0, 0.0, 49.46, 38.95));
+            field.obstacles.add(FieldObstacle.circle(-48.0, -72.0, 6.0));
+            field.obstacles.add(FieldObstacle.circle(48.0, -72.0, 6.0));
+            field.obstacles.add(FieldObstacle.circle(-48.0, 72.0, 6.0));
+            field.obstacles.add(FieldObstacle.circle(48.0, 72.0, 6.0));
 
-            field.pollen.add(new FieldPoint(36.0, 24.0));
-            field.pollen.add(new FieldPoint(108.0, 24.0));
-            field.pollen.add(new FieldPoint(36.0, 120.0));
-            field.pollen.add(new FieldPoint(108.0, 120.0));
-            field.pollen.add(new FieldPoint(72.0, 24.0));
-            field.pollen.add(new FieldPoint(72.0, 120.0));
+            field.pollen.add(new FieldPoint(-36.0, -48.0));
+            field.pollen.add(new FieldPoint(36.0, -48.0));
+            field.pollen.add(new FieldPoint(-36.0, 48.0));
+            field.pollen.add(new FieldPoint(36.0, 48.0));
+            field.pollen.add(new FieldPoint(0.0, -48.0));
+            field.pollen.add(new FieldPoint(0.0, 48.0));
 
             return field;
         }
@@ -533,8 +552,10 @@ public class Pathfinding extends OpMode {
             double detourClearance = robotRadius + OBSTACLE_MARGIN_INCHES + 2.0;
             double aboveY = hive.centerY + hive.height / 2.0 + detourClearance;
             double belowY = hive.centerY - hive.height / 2.0 - detourClearance;
-            FieldPoint above = new FieldPoint(72.0, clamp(aboveY, 0.0, FIELD_SIZE_INCHES));
-            FieldPoint below = new FieldPoint(72.0, clamp(belowY, 0.0, FIELD_SIZE_INCHES));
+            FieldPoint above = new FieldPoint(0.0,
+                    clamp(aboveY, -FIELD_HALF_SIZE_INCHES, FIELD_HALF_SIZE_INCHES));
+            FieldPoint below = new FieldPoint(0.0,
+                    clamp(belowY, -FIELD_HALF_SIZE_INCHES, FIELD_HALF_SIZE_INCHES));
             return distance(from, above) + distance(above, to) < distance(from, below) + distance(below, to)
                     ? above
                     : below;
