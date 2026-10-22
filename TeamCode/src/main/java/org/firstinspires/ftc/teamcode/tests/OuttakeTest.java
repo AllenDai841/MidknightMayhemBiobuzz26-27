@@ -8,17 +8,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 import org.firstinspires.ftc.teamcode.subsystems.Odometry;
 import org.firstinspires.ftc.teamcode.subsystems.ShotCalculator;
 
-@TeleOp
-public class outtakeTest extends OpMode{
+@TeleOp(name = "Outtake Test", group = "Tests")
+public class OuttakeTest extends OpMode {
     Motor motor;
     Odometry odometry;
-    ShotCalculator shotCalculator = new ShotCalculator();
+    final ShotCalculator shotCalculator = new ShotCalculator();
+
     public static boolean useShotCalculator = false;
     public static double rpm = 3900;
+
     @Override
     public void init() {
         motor = new Motor(hardwareMap.get(DcMotorEx.class, "motorTest"), 28);
-        motor.setMode (DcMotorEx.RunMode.RUN_USING_ENCODER);
+        motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
         if (useShotCalculator) {
             try {
                 odometry = new Odometry(hardwareMap);
@@ -27,12 +30,15 @@ public class outtakeTest extends OpMode{
                 odometry = null;
             }
         }
+        telemetry.update();
     }
 
     @Override
     public void loop() {
         double targetRpm = rpm;
-        if (useShotCalculator && odometry != null) {
+        boolean calcActive = useShotCalculator && odometry != null;
+
+        if (calcActive) {
             odometry.update();
             shotCalculator.update(odometry);
             if (shotCalculator.canShoot()) {
@@ -43,12 +49,15 @@ public class outtakeTest extends OpMode{
         motor.setRPM(targetRpm);
         telemetry.addData("Target RPM", "%.0f", targetRpm);
         telemetry.addData("Velocity", "%.0f", motor.getVelocity());
-        telemetry.addData("Shot RPM", "%.0f", shotCalculator.getRpm());
-        telemetry.addData("Shot Distance", "%.1f", shotCalculator.getDistance());
-        telemetry.addData("Can Shoot", shotCalculator.canShoot());
+        if (calcActive) {
+            telemetry.addData("Shot RPM", "%.0f", shotCalculator.getRpm());
+            telemetry.addData("Shot Distance", "%.1f", shotCalculator.getDistance());
+            telemetry.addData("Can Shoot", shotCalculator.canShoot());
+        }
+    }
+
+    @Override
+    public void stop() {
+        motor.setRPM(0);
     }
 }
-
-
-
-
