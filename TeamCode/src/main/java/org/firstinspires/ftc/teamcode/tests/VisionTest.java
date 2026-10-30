@@ -57,6 +57,8 @@ public class VisionTest extends OpMode {
                 ballChaser.isBallSeen(), ballChaser.getBallAngle(), ballChaser.isChasing());
         telemetry.addData("Hive", "tag seen: %b, error: %.1f deg, aimed: %b",
                 hiveAimer.isTagSeen(), hiveAimer.getError(), hiveAimer.isAimed());
+        telemetry.addData("Shot", "rpm: %.0f, distance: %.1f in, can shoot: %b",
+                hiveAimer.getShotRpm(), hiveAimer.getShotDistance(), hiveAimer.canShoot());
         telemetry.addData("Pose", "%.1f, %.1f, %.1f deg", odometry.getX(), odometry.getY(), odometry.getHeadingDegrees());
     }
 
