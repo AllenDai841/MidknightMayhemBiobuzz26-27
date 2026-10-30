@@ -9,6 +9,8 @@ public class ShotCalculator {
     public static double SPEED_EFFICIENCY = 0.5;       // ball speed / wheel surface speed
     public static double MAX_RPM = 5400;
     public static double MIN_DISTANCE = 12;            // too close to shoot
+    public static double HIVE_CENTER_X = 72;     // Pedro field coordinates (0-144)
+    public static double HIVE_CENTER_Y = 72;
     public static double CELL_SPACING = 18.8;     // manual 9.6.2
     public static double HIVE_Y_OFFSET = 12;      // ESTIMATE
     public static double CELL_HEIGHT = 48;        // ESTIMATE
@@ -52,8 +54,8 @@ public class ShotCalculator {
     }
 
     private double[] target() {
-        double x = side == Side.FRONT ? -CELL_SPACING / 2 : CELL_SPACING / 2;
-        double y = hive == Hive.RED ? HIVE_Y_OFFSET : -HIVE_Y_OFFSET;
+        double x = HIVE_CENTER_X + (side == Side.FRONT ? -CELL_SPACING / 2 : CELL_SPACING / 2);
+        double y = HIVE_CENTER_Y + (hive == Hive.RED ? HIVE_Y_OFFSET : -HIVE_Y_OFFSET);
         return new double[] {x, y, CELL_HEIGHT};
     }
 

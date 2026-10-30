@@ -20,8 +20,8 @@ public class OdometryTest extends LinearOpMode {
         DcMotor backLeft = hardwareMap.get(DcMotor.class, "bl");
         DcMotor frontRight = hardwareMap.get(DcMotor.class, "fr");
         DcMotor backRight = hardwareMap.get(DcMotor.class, "br");
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         for (DcMotor motor : new DcMotor[] {frontLeft, backLeft, frontRight, backRight}) {
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);

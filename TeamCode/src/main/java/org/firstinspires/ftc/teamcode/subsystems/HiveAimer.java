@@ -4,8 +4,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
 public class HiveAimer {
     public static int HIVE_TAG_ID = 1;
-    public static double HIVE_X = 60;           // inches, in the same coordinates as Odometry
-    public static double HIVE_Y = 0;
+    public static double HIVE_X = 72;           // inches, Pedro field coordinates (0-144), hive at center
+    public static double HIVE_Y = 72;
     public static double AIM_OFFSET = 0;        // degrees, positive aims left of the hive (camera or shooter not centered)
     public static double TURN_GAIN = 0.02;      // turn power per degree of aim error
     public static double MAX_TURN = 0.5;

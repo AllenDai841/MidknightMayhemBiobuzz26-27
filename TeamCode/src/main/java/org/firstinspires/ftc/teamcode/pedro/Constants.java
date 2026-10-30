@@ -8,13 +8,13 @@ import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector2D;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
-import com.pedropathing.revhub.localizers.PinpointConfig;
-import com.pedropathing.revhub.localizers.PinpointLocalizer;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.pedropathing.revhub.localizers.Encoder;
+import com.pedropathing.revhub.localizers.RevHubIMU;
+import com.pedropathing.revhub.localizers.TwoWheelConfig;
+import com.pedropathing.revhub.localizers.TwoWheelLocalizer;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static MecanumConfig drivetrainConfig = new MecanumConfig(
@@ -32,16 +32,20 @@ public class Constants {
 
     public static MecanumConfig driveConfig = drivetrainConfig;
 
-    public static PinpointConfig localizerConfig = new PinpointConfig(
+    public static TwoWheelConfig localizerConfig = new TwoWheelConfig(
             c -> {
-                c.name.set("pinpoint");
-                c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-                c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-                c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+                c.xPodName.set("xPod");
+                c.yPodName.set("yPod");
+                c.imuName.set("imu");
                 c.xPodOffset.set(0.0);
                 c.yPodOffset.set(0.0);
-                c.globalDistanceUnit.set(DistanceUnit.INCH);
-                c.offsetUnits.set(DistanceUnit.INCH);
+                c.forwardTicksToInches.set(Math.PI * 32 / 25.4 / 2000);
+                c.strafeTicksToInches.set(Math.PI * 32 / 25.4 / 2000);
+                c.xPodDirection.set(Encoder.FORWARD);
+                c.yPodDirection.set(Encoder.FORWARD);
+                c.imu.set(new RevHubIMU(new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
             }
     );
 
@@ -66,7 +70,7 @@ public class Constants {
 
     public static Follower create(HardwareMap h) {
         return new Follower(
-                new PinpointLocalizer(h, localizerConfig),
+                new TwoWheelLocalizer(h, localizerConfig),
                 new Mecanum(h, drivetrainConfig),
                 new Foresight(foresightConfig)
         );

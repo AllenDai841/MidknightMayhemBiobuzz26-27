@@ -46,6 +46,7 @@ public class Pathfinding extends OpMode {
     private AprilTagWebcam arducam;
     private HiveAimer hiveAimer;
     private TransferSensor transferSensor;
+    private final ShotCalculator shotCalculator = new ShotCalculator();
 
     private boolean busy = false;
     private boolean driving = false;
@@ -67,6 +68,7 @@ public class Pathfinding extends OpMode {
     private static final String APRILTAG_CAMERA_NAME = "arducam";
     private static final String TRANSFER_SENSOR_NAME = "transfer";
     private static final double SHOOTER_POWER = 1.0;
+    private static final double SHOOTER_TICKS_PER_REV = 28;
     private static final double INTAKE_POWER = 1.0;
     private static final double TRIGGER_REST_POSITION = 0.0;
     private static final double TRIGGER_FIRE_POSITION = 0.45;
@@ -111,7 +113,13 @@ public class Pathfinding extends OpMode {
                 }),
                 instant(() -> {
                     if (shooterMotor != null) {
-                        shooterMotor.setPower(SHOOTER_POWER);
+                        Pose here = follower.pose();
+                        shotCalculator.update(here.x(), here.y(), here.heading());
+                        if (shotCalculator.isReachable()) {
+                            shooterMotor.setVelocity(shotCalculator.getRpm() * SHOOTER_TICKS_PER_REV / 60);
+                        } else {
+                            shooterMotor.setPower(SHOOTER_POWER);
+                        }
                     }
                 }),
                 waitMs(800),
@@ -303,10 +311,8 @@ public class Pathfinding extends OpMode {
     }
 
     private Pose aimedScorePose() {
-        return poseFactory.of(
-                scorePose.x(),
-                scorePose.y(),
-                headingDegrees(scorePose.x(), scorePose.y(), HiveAimer.HIVE_X, HiveAimer.HIVE_Y));
+        shotCalculator.update(scorePose.x(), scorePose.y(), scorePose.heading());
+        return poseFactory.of(scorePose.x(), scorePose.y(), shotCalculator.getTargetHeading());
     }
 
     @Override
@@ -317,11 +323,15 @@ public class Pathfinding extends OpMode {
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
+        odometry.setPose(startPose.x(), startPose.y(), startPose.heading());
         follower.update();
     }
 
     private void initGamepieceHardware() {
         shooterMotor = optionalHardware(DcMotorEx.class, SHOOTER_MOTOR_NAME);
+        if (shooterMotor != null) {
+            shooterMotor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        }
         intakeMotor = optionalHardware(DcMotorEx.class, INTAKE_MOTOR_NAME);
         triggerServo = optionalHardware(Servo.class, TRIGGER_SERVO_NAME);
         stopMechanisms();

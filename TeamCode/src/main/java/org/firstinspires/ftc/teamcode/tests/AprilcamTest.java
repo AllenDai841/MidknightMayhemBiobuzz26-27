@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode.tests;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagWebcam;
 
+@TeleOp
 public class AprilcamTest extends OpMode {
     AprilTagWebcam aprilcam;
     @Override
     public void init() {
         aprilcam = new AprilTagWebcam();
-        aprilcam.init(hardwareMap, telemetry, "aprilcam");
+        aprilcam.init(hardwareMap, telemetry, "arducam");
     }
 
     @Override
