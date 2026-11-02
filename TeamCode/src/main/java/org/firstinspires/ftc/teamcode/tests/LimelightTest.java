@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.tests;
 
-import com.qualcomm.hardware.limelightvision.LLResult;
+
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Limelight;
-
+@TeleOp
 public class LimelightTest extends OpMode {
     Limelight limelight;
     @Override

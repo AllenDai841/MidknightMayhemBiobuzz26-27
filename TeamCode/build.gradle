@@ -31,3 +31,29 @@ dependencies {
     implementation project(':FtcRobotController')
     implementation "com.bylazar:fullpanels:1.0.5"
 }
+
+def pathfindingSimulationClasses = layout.buildDirectory.dir('pathfindingSimulation/classes')
+
+tasks.register('compilePathfindingSimulation', JavaCompile) {
+    group = 'other'
+    description = 'Compiles the desktop-only Pathfinding simulator.'
+
+    source = fileTree('src/simulation/java') {
+        include '**/*.java'
+    }
+    destinationDirectory = pathfindingSimulationClasses
+    classpath = files()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+tasks.register('runPathfindingSimulation', JavaExec) {
+    group = 'other'
+    description = 'Runs the Pathfinding console simulator on this computer.'
+
+    dependsOn 'compilePathfindingSimulation'
+
+    mainClass = 'org.firstinspires.ftc.teamcode.simulation.PathfindingSimulation'
+    standardInput = System.in
+    classpath = files(pathfindingSimulationClasses)
+}

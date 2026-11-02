@@ -10,59 +10,26 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 @Configurable
 @TeleOp
 public class motorTest extends OpMode {
+    public static double rpm = 500;
+    public static double ticksPerRevolution = 28;
 
     Motor motor;
-
-    public static double rpm = -500;
-    public static double rampRate = 15; // RPM per second
-
-    private double commandedRPM = 0;
-    private double lastTime = 0;
-
     @Override
     public void init() {
-        motor = new Motor(
-                hardwareMap.get(DcMotorEx.class, "motorTest"),
-                28
-        );
-
+        motor = new Motor(hardwareMap.get(DcMotorEx.class, "motor"), ticksPerRevolution);
         motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 
     @Override
-    public void start() {
-        commandedRPM = 0;
-        lastTime = getRuntime();
-    }
-
-    @Override
     public void loop() {
-        double now = getRuntime();
-        double dt = Math.min(now - lastTime, 0.1);
-        lastTime = now;
+        if (gamepad1.dpadUpWasPressed()) rpm += 100;
+        if (gamepad1.dpadDownWasPressed()) rpm -= 100;
+        if (gamepad1.bWasPressed()) rpm = 0;
 
-        double maxChange = rampRate * dt;
-        double difference = rpm - commandedRPM;
+        motor.setRPM(rpm);
 
-        if (Math.abs(difference) <= maxChange) {
-            commandedRPM = rpm;
-        } else {
-            commandedRPM += Math.signum(difference) * maxChange;
-        }
-
-        motor.setRPM(commandedRPM);
-
-        telemetry.addData("Target RPM", rpm);
-        telemetry.addData("Commanded RPM", commandedRPM);
-        telemetry.addData(
-                "Measured RPM",
-                motor.getVelocity() * 60.0 / 28.0
-        );
-        telemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        motor.setPower(0);
+        telemetry.addData("target", rpm);
+        telemetry.addData("actual", motor.getVelocity() * 60 / ticksPerRevolution);
+        telemetry.addLine("Type rpm in Panels, or dpad up/down = +/-100, B = stop");
     }
 }
