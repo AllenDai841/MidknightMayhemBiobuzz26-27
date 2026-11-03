@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 @TeleOp
 public class outtakeTest extends OpMode{
     Motor motor;
-    public static double rpm = 5200; // Max is -5200; current state is -4900 for outtake, 300 for intake
+    public static double rpm = 3800; // Max is 6200
     @Override
     public void init() {
         motor = new Motor(hardwareMap.get(DcMotorEx.class, "motorTest"), 20);
