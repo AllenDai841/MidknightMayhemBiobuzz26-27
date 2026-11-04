@@ -21,10 +21,12 @@ import java.util.List;
 @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Autonomous")
 public class Autonomous extends OpMode {
 
+    private static final double FIELD_SIZE_INCHES = 144.0;
+
     private final PoseFactory poseFactory = PoseFactory.degrees();
-    private final Pose startPose = poseFactory.of(8.663813215472306, 105.45926430610494, 0);
-    private final Pose scorePose = poseFactory.of(59.707276792047374, 13.715731087271173, 90);
-    private final Pose parkPose  = poseFactory.of(8.663813215472306, 105.45926430610494, 0);
+    private final Pose startPose = poseFactory.of(8.663813215472306, 38.54073569389506, 0);
+    private final Pose scorePose = poseFactory.of(59.707276792047374, 130.28426891272883, 90);
+    private final Pose parkPose  = poseFactory.of(8.663813215472306, 38.54073569389506, 0);
 
     private enum State { DRIVE_TO_SCORE, PARK, AVOID, DONE }
 
@@ -38,7 +40,6 @@ public class Autonomous extends OpMode {
     private Pose goal = startPose;
     private double avoidCooldownUntil = 0.0;
 
-    private static final double FIELD_SIZE_INCHES = 144.0;
     private static final double ROBOT_WIDTH_INCHES = 13.5;
     private static final double ROBOT_LENGTH_INCHES = 17.0;
     private static final double OBSTACLE_LOOKAHEAD_INCHES = 18.0;

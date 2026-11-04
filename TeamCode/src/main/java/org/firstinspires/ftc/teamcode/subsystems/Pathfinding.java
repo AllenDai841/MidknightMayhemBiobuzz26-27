@@ -29,10 +29,13 @@ import java.util.List;
 @Autonomous(name = "Pathfinding")
 public class Pathfinding extends OpMode {
 
+    private static final double FIELD_SIZE_INCHES = 144.0;
+
     private final PoseFactory poseFactory = PoseFactory.degrees();
-    private final Pose startPose = poseFactory.of(56, 8, 90);
-    private final Pose scorePose = poseFactory.of(48, 36, 90);
-    private final Pose parkPose  = poseFactory.of(72, 36, 90);
+    // Pedro visualizer coordinates: (0, 0) is the bottom-left corner of the field.
+    private final Pose startPose = poseFactory.of(56, 136, 90);
+    private final Pose scorePose = poseFactory.of(48, 108, 90);
+    private final Pose parkPose  = poseFactory.of(72, 108, 90);
 
     private enum State { SHOOT_PRELOAD, SEARCH, COLLECT, RETURN, SHOOT, AVOID, PARK, DONE }
 
@@ -57,7 +60,6 @@ public class Pathfinding extends OpMode {
     private int ballsHeld = 0;
     private static final int BALLS_TO_COLLECT = 3;
     private static final double PARK_TIME_SECONDS = 25.0;
-    private static final double FIELD_SIZE_INCHES = 144.0;
     private static final double DEFAULT_ROBOT_SIZE_INCHES = 18.0;
     private static final double OBSTACLE_LOOKAHEAD_INCHES = 18.0;
     private static final double OBSTACLE_MARGIN_INCHES = 2.0;
