@@ -11,10 +11,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Motor;
 @TeleOp
 public class outtakeTest extends OpMode{
     Motor motor;
-    public static double rpm = 6200;
+    public static double rpm = 3800; // Max is 6200
     @Override
     public void init() {
-        motor = new Motor(hardwareMap.get(DcMotorEx.class, "motorTest"), 28);
+        motor = new Motor(hardwareMap.get(DcMotorEx.class, "motorTest"), 20);
         motor.setMode (DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 
