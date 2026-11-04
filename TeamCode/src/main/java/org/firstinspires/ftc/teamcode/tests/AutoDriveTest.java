@@ -29,38 +29,15 @@ public class AutoDriveTest extends OpMode {
         if (step == 0) {
             drive.drive(0.3, 0, 90);
 
-            if (timer.seconds() >= 5) {
+            if (timer.seconds() >= 2) {
                 step++;
                 timer.reset();
             }
         }
-        else if (step == 1) {
+        if (step == 1) {
             drive.drive(0.3, 0, 90);
 
-            if (timer.seconds() >= 3) {
-                step++;
-                timer.reset();
-            }
-        }
-        else if (step == 2) {
-            drive.drive(0.3, 0, 0);
-
-            if (timer.seconds() >= 2) {
-                step++;
-                timer.reset();
-            }
-        }
-        else if (step == 3) {
-            drive.drive(0.3, 1, 1);
-
-            if (timer.seconds() >= 1) {
-                step++;
-                timer.reset();
-            }
-        }
-        else if (step == 4){
-            drive.drive(0.3,1,1);
-            if (timer.seconds() >= 2) {
+            if (timer.seconds() >= 1.9) {
                 step++;
                 timer.reset();
             }
