@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
+//
+//This one is if our robot starts in the position IN FRONT OF THE HIVE
+//
 @Autonomous
 public class AutoDriveOne extends OpMode {
     Drive drive;
@@ -27,7 +30,7 @@ public class AutoDriveOne extends OpMode {
     @Override
     public void loop() {
         if (step == 0) {
-            drive.drive(0, 0.5, 0);
+            drive.drive(0, -0.5, 0);
 
             if (timer.seconds() >= 1) {
                 step++;
@@ -38,6 +41,14 @@ public class AutoDriveOne extends OpMode {
             drive.drive(0.5, 0, 0);
 
             if (timer.seconds() >= 3) {
+                step++;
+                timer.reset();
+            }
+        }
+        if (step == 2) {
+            drive.drive(0, -0.1, 0);
+
+            if (timer.seconds() >= 1) {
                 step++;
                 timer.reset();
             }

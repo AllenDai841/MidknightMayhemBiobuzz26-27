@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
+//
+//This one is if our robot starts in the position CLOSEST TO THE LOADING ZONE
+//
 @Autonomous
 public class AutoDriveTwo extends OpMode {
     Drive drive;
@@ -27,17 +30,9 @@ public class AutoDriveTwo extends OpMode {
     @Override
     public void loop() {
         if (step == 0) {
-            drive.drive(0.3, 0, 90);
+            drive.drive(0.1, -0.1, 90);
 
-            if (timer.seconds() >= 2) {
-                step++;
-                timer.reset();
-            }
-        }
-        if (step == 1) {
-            drive.drive(0.3, 0, 90);
-
-            if (timer.seconds() >= 1.9) {
+            if (timer.seconds() >= 1) {
                 step++;
                 timer.reset();
             }
