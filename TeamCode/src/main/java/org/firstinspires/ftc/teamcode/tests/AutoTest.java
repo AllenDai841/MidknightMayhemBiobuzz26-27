@@ -9,22 +9,25 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 @Autonomous
 public class AutoTest extends OpMode {
     Drive drive;
-    ElapsedTime time;
-    boolean bool = false;
+    ElapsedTime time = new ElapsedTime();
+    int s = 0;
     @Override
     public void init() {
         drive = new Drive(hardwareMap);
-        time = new ElapsedTime();
+    }
+    @Override
+    public void start(){
+        time.reset();
     }
 
     @Override
     public void loop() {
-        if(!bool){
-            time.reset();
-            bool = true;
-        }
-        while(time.seconds() <= 3) {
+        if(time.seconds() <= 1) {
             drive.drive(0.5, 0, 0);
         }
+        else{
+            drive.stop();
+        }
+
     }
 }
