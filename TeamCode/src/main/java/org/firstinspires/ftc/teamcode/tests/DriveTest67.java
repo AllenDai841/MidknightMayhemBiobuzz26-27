@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 
 @TeleOp
-public class DriveTestNIGG extends OpMode {
+public class DriveTest67 extends OpMode {
 
     Drive drive;
 
