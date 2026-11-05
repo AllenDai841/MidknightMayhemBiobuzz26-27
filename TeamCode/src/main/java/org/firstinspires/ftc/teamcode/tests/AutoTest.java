@@ -14,6 +14,7 @@ public class AutoTest extends OpMode {
     @Override
     public void init() {
         drive = new Drive(hardwareMap);
+        time = new ElapsedTime();
     }
 
     @Override

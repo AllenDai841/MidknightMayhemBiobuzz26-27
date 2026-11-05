@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
 import com.pedropathing.math.Pose;
@@ -268,3 +269,5 @@ class PinpointOffsets extends TuningOpMode<List<Double>> {
         return List.of(((-previous.y()) / 2.0), ((-previous.x()) / 2.0));
     }
 }
+
+ */

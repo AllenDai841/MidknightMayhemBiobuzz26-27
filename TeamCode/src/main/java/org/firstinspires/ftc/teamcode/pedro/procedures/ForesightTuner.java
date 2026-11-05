@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
 import static com.pedropathing.utils.Utils.linearFit;
@@ -1266,3 +1267,4 @@ class StrafeTranslational extends TuningOpMode<List<Double>> {
     }
 }
 
+*/

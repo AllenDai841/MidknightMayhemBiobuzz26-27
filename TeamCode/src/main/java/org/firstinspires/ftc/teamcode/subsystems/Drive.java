@@ -44,10 +44,10 @@ public class Drive {
     }
 
     public void drive(double forward, double strafe, double turn) {
-        double flPower = forward + strafe + turn;
-        double frPower = forward - strafe - turn;
-        double blPower = forward - strafe + turn;
-        double brPower = forward + strafe - turn;
+        double flPower = -forward - strafe - turn;
+        double frPower = -forward + strafe + turn;
+        double blPower = -forward + strafe - turn;
+        double brPower = -forward - strafe + turn;
 
         double max = Math.max(1.0,
                 Math.max(Math.abs(flPower),

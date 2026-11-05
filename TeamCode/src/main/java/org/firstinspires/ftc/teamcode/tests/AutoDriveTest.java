@@ -15,6 +15,6 @@ public class AutoDriveTest extends OpMode {
 
     @Override
     public void loop() {
-        drive.drive(1, 1, 0);
+        drive.drive(1, 0, 0);
     }
 }
