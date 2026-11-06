@@ -78,7 +78,7 @@ public class MatchTeleOp extends OpMode {
         if (gamepad1.left_trigger > 0.5) {
             turn = Math.max(-MAX_AIM_TURN, Math.min(MAX_AIM_TURN, -shot.getAimError() * AIM_GAIN));
         }
-        drive.drive(forward, strafe, turn);
+        drive.drive(forward, strafe, turn, 1);
 
         if (gamepad1.rightBumperWasPressed()) intakeOn = !intakeOn;
         boolean full = transfer.isBallHeld();
@@ -104,7 +104,7 @@ public class MatchTeleOp extends OpMode {
 
     @Override
     public void stop() {
-        drive.drive(0, 0, 0);
+        drive.drive(0, 0, 0, 1);
         intake.setPower(0);
         shooter.setPower(0);
     }

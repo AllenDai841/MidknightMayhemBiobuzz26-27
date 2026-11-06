@@ -43,6 +43,22 @@ public class Drive {
         br.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
 
+    public void drive(double forward, double strafe, double turn, double power) {
+        double flPower = -forward - strafe - turn;
+        double frPower = -forward + strafe + turn;
+        double blPower = -forward + strafe - turn;
+        double brPower = -forward - strafe + turn;
+
+        double max = Math.max(1.0,
+                Math.max(Math.abs(flPower),
+                        Math.max(Math.abs(frPower),
+                                Math.max(Math.abs(blPower), Math.abs(brPower)))));
+
+        fl.setPower(flPower / max * power);
+        fr.setPower(frPower / max * power);
+        bl.setPower(blPower / max * power);
+        br.setPower(brPower / max * power);
+    }
     public void drive(double forward, double strafe, double turn) {
         double flPower = -forward - strafe - turn;
         double frPower = -forward + strafe + turn;

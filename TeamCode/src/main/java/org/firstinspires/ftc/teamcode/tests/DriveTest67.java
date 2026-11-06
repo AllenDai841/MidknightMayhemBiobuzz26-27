@@ -18,10 +18,24 @@ public class DriveTest67 extends OpMode {
 
     @Override
     public void loop() {
-        drive.drive(
-                -gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
-                gamepad1.right_stick_x
-        );
+        if(gamepad1.right_bumper) {
+            drive.drive(
+                    -gamepad1.left_stick_y,
+                    gamepad1.left_stick_x,
+                    gamepad1.right_stick_x,
+                    0.5
+            );
+            telemetry.addData("slow", 1);
+        }
+        else{
+            drive.drive(
+                    -gamepad1.left_stick_y,
+                    gamepad1.left_stick_x,
+                    gamepad1.right_stick_x,
+                    1
+            );
+            telemetry.addData("fast", 1);
+        }
+
     }
 }

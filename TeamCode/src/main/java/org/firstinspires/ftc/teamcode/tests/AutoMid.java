@@ -6,8 +6,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
+
 @Autonomous
-public class AutoTest extends OpMode {
+public class AutoMid extends OpMode {
     Drive drive;
     ElapsedTime time = new ElapsedTime();
     int s = 0;
@@ -22,8 +23,11 @@ public class AutoTest extends OpMode {
 
     @Override
     public void loop() {
-        if(time.seconds() <= 1) {
-            drive.drive(0.5, 0, 0);
+        if(time.milliseconds() <= 500) {
+            drive.drive(0, 0.3, 0);
+        }
+        else if(time.milliseconds() <= 1100) {
+            drive.drive(0.3, 0, 0);
         }
         else{
             drive.stop();
