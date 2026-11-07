@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 
 @TeleOp
-public class DriveTest67 extends OpMode {
+public class MatchDrive extends OpMode {
 
     Drive drive;
 
