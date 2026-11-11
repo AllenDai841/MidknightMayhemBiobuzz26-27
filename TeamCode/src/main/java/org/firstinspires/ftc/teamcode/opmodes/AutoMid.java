@@ -23,10 +23,13 @@ public class AutoMid extends OpMode {
 
     @Override
     public void loop() {
-        if(time.milliseconds() <= 500) {
+        if(time.milliseconds() <= 350) {
             drive.drive(0, 0.3, 0);
         }
-        else if(time.milliseconds() <= 1100) {
+        else if(time.milliseconds() <= 500){
+            drive.stop();
+        }
+        else if(time.milliseconds() <= 1150) {
             drive.drive(0.3, 0, 0);
         }
         else{

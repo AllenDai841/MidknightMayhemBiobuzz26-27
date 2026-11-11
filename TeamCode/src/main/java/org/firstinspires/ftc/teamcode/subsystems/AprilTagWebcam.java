@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
 
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AprilTagWebcam {
+    double pitchCutoff = 0;
     private AprilTagProcessor processor;
     private VisionPortal portal;
 
@@ -31,6 +33,7 @@ public class AprilTagWebcam {
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setTagLibrary(AprilTagGameDatabase.getBioBuzzTagLibrary())
                 .build();
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hwMap.get(WebcamName.class, name));
@@ -71,10 +74,28 @@ public class AprilTagWebcam {
         }
         return null;
     }
+    public AprilTagClusterDetection getCluster(AprilTagDetection detection){
+        if(detection instanceof AprilTagClusterDetection){
+            AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
+            telemetry.addLine("Cluster Name: " + clusterDet.metadata.name);
+            telemetry.addData("Cluster x", clusterDet.ftcPose.x);
+            telemetry.addData("Cluster y", clusterDet.ftcPose.y);
+            telemetry.addData("Cluster yaw", clusterDet.ftcPose.yaw);
+            telemetry.addData("Cluster pitch", clusterDet.ftcPose.pitch);
+            return clusterDet;
+        }
+        return null;
+    }
+    public boolean hiveUp(AprilTagDetection detection){
+        if(detection instanceof AprilTagClusterDetection){
+            AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
+            return clusterDet.ftcPose.pitch >= pitchCutoff;
+        }
+        return false;
+    }
     public void stop(){
         if(portal != null){
             portal.close();
         }
     }
-
 }
