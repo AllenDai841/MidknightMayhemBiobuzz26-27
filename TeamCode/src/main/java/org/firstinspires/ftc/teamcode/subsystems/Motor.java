@@ -22,5 +22,8 @@ public class Motor{
     public double getVelocity(){
         return motor.getVelocity();
     }
+    public double getRPM(){
+        return motor.getVelocity() * 60 / ticksPerRevolution;
+    }
 
 }
