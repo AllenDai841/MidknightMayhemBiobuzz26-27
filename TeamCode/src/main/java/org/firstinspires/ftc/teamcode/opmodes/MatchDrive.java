@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 
-@TeleOp
+@TeleOp (name = "Match Drive(use this)", group = "1 - Match")
 public class MatchDrive extends OpMode {
 
     Drive drive;

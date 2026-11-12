@@ -2,12 +2,13 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 
-@Autonomous
+@Autonomous(name = "Auto Cornder", group = "1 - Match")
 public class AutoCorner extends OpMode {
     Drive drive;
     ElapsedTime time = new ElapsedTime();

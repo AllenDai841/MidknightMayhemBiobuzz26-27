@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ShotCalculator;
 import org.firstinspires.ftc.teamcode.subsystems.TransferSensor;
 
 @Configurable
-@TeleOp(name = "Match TeleOp(dont use this)")
+@TeleOp(name = "Match TeleOp(dont use this)", group = "1 - Match")
 public class MatchTeleOp extends OpMode {
     public static double START_X = 56;          // same start as Pathfinding
     public static double START_Y = 8;
