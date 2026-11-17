@@ -98,4 +98,15 @@ public class AprilTagWebcam {
             portal.close();
         }
     }
+    public double getBotHeadingCluster(AprilTagDetection detection){
+        if(detection instanceof AprilTagClusterDetection) {
+            AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
+            return 90 - clusterDet.ftcPose.yaw;
+        }
+        return 0;
+    }
+    public double getErrorXCluster(AprilTagClusterDetection detection){
+            return detection.ftcPose.x;
+    }
 }
+
